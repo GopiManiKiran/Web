@@ -1,0 +1,140 @@
+body {
+    font-family: Arial, sans-serif;
+    background: url('https://wallpaperaccess.com/full/4765867.jpg') no-repeat center center fixed;
+    background-size: cover;
+    color: #333;
+    margin: 0;
+    padding: 0;
+}
+
+header {
+    background-color: #3b5998;
+    color: #fff;
+    padding: 20px;
+    text-align: center;
+}
+
+.logo {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 10px;
+    font-size: 3em;
+}
+
+.logo-img {
+    width: 100px;
+}
+
+h2 {
+    color: #1a5276;
+}
+
+table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-bottom: 20px;
+}
+
+th, td {
+    padding: 10px;
+    text-align: left;
+    border-bottom: 1px solid #ddd;
+}
+
+tr:hover {
+    background-color: #f2f2f2;
+    cursor: pointer;
+}
+#teams-info {
+    display: none; 
+}
+
+
+.match-info {
+    color: #333; 
+    background-color: white; 
+    padding: 15px; 
+    border-radius: 5px; 
+}
+
+.match-info h2 {
+    color: #0066cc; 
+}
+
+
+.match-info p {
+    color: #444; 
+}
+
+.match-info p strong {
+    color: #0066cc; 
+}
+
+.match-schedule {
+    color: #333; 
+
+    padding: 20px; 
+    border-radius: 5px; 
+}
+
+#schedule-table th {
+    color: yellow; 
+}
+
+#schedule-table td {
+    color: blue; 
+}
+
+
+.main-content {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+    padding: 20px;
+}
+
+.scorecard, .commentary, .on-strike, .result {
+    background-color: rgba(255, 255, 255, 0.8);
+    padding: 20px;
+    border-radius: 10px;
+    max-width: 600px;
+    margin: 0 auto;
+}
+
+.players-strike {
+    display: flex;
+    justify-content: space-between;
+}
+
+.player-box {
+    padding: 10px;
+    background-color: #e9ecef;
+    border-radius: 5px;
+    text-align: center;
+    width: 45%;
+}
+
+.commentary-box {
+    height: 150px;
+    overflow-y: auto;
+    background-color: #f9f9f9;
+    border: 1px solid #ccc;
+    padding: 10px;
+}
+
+footer {
+    text-align: center;
+    padding: 20px;
+    background-color: #f1f1f1;
+    margin-top: 20px;
+}
+
+footer a {
+    color: #1a5276;
+    text-decoration: none;
+}
+
+footer a:hover {
+    text-decoration: underline;
+}

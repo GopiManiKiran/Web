@@ -1,0 +1,300 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Live Cricket Score & Commentary</title>
+    <link rel="stylesheet" href="T2.css">
+</head>
+<body>
+<center>
+    <header>
+        <div class="logo">
+            <img src="criclogo.png" alt="Cricket Logo" class="logo-img">  
+            LiveCrick
+        </div>
+    </header>
+
+    <section class="match-info">
+        <h2>Live Cricket Match</h2>
+        <p><strong>Teams:</strong> <span id="teams-info">Select a match to start</span></p>
+        <p><strong>Format:</strong> T20 International</p>
+        <p><strong>Innings:</strong> <span id="innings-info">Batting Team</span></p>
+    </section>
+    
+</center>
+
+<section class="match-schedule">
+    <h2>Matches</h2>
+    <table id="schedule-table">
+        <thead>
+            <tr>
+                
+                <th>Teams</th>
+                <th>Venue</th>
+                <th>Time</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr onclick="startMatch('India', 'England')">
+                
+                <td>India vs England</td>
+                <td>Mumbai</td>
+                <td>7:30 PM IST</td>
+            </tr>
+            <tr onclick="startMatch('Australia', 'South Africa')">
+               
+                <td>Australia vs South Africa</td>
+                <td>Sydney</td>
+                <td>4:00 PM AEST</td>
+            </tr>
+            <tr onclick="startMatch('Pakistan', 'New Zealand')">
+                
+                <td>Pakistan vs New Zealand</td>
+                <td>Karachi</td>
+                <td>6:00 PM PKT</td>
+            </tr>
+        </tbody>
+    </table>
+</section>
+
+<div class="main-content">
+    <section class="scorecard">
+        <h2 id="team1-name">Team 1 Batting Scorecard</h2>
+        <table id="team1-scorecard-table">
+            <thead>
+                <tr>
+                    <th>Player</th>
+                    <th>Runs</th>
+                    <th>Balls</th>
+                </tr>
+            </thead>
+            <tbody id="team1-scorecard-body"></tbody>
+        </table>
+        <p id="team1-total-score">Total Score: 0/0 (0 overs)</p>
+    </section>
+
+    <section class="scorecard">
+        <h2 id="team2-name">Team 2 Batting Scorecard</h2>
+        <table id="team2-scorecard-table">
+            <thead>
+                <tr>
+                    <th>Player</th>
+                    <th>Runs</th>
+                    <th>Balls</th>
+                </tr>
+            </thead>
+            <tbody id="team2-scorecard-body"></tbody>
+        </table>
+        <p id="team2-total-score">Total Score: 0/0 (0 overs)</p>
+    </section>
+
+    <section class="on-strike">
+        <h2>Players on Strike</h2>
+        <div class="players-strike">
+            <div id="striker-box" class="player-box">
+                <p><strong>Striker: </strong><span id="striker-name">N/A</span></p>
+                <p><strong>Runs: </strong><span id="striker-runs">0</span></p>
+                <p><strong>Balls: </strong><span id="striker-balls">0</span></p>
+            </div>
+            <div id="non-striker-box" class="player-box">
+                <p><strong>Non-Striker: </strong><span id="non-striker-name">N/A</span></p>
+                <p><strong>Runs: </strong><span id="non-striker-runs">0</span></p>
+                <p><strong>Balls: </strong><span id="non-striker-balls">0</span></p>
+            </div>
+        </div>
+    </section>
+
+    <section class="commentary">
+        <h2>Live Cricket Commentary</h2>
+        <div class="commentary-box" id="commentary-box"></div>
+    </section>
+
+    <section class="result">
+        <h2 id="match-result"></h2>
+    </section>
+</div>
+
+<footer>
+    <p>© 2024 LiveCrick. All Rights Reserved.</p>
+    <p><a href="#">Privacy Policy</a> | <a href="#">Terms & Conditions</a></p>
+</footer>
+
+<script>
+
+const teams = {
+    'India': ["Rohit Sharma", "Virat Kohli", "Suryakumar Yadav", "KL Rahul", "Hardik Pandya", "Ravindra Jadeja", "Axar Patel", "Shardul Thakur", "Mohammed Shami", "Jasprit Bumrah", "Yuzvendra Chahal"],
+    'England': ["Jos Buttler", "Jonny Bairstow", "Joe Root", "Ben Stokes", "Eoin Morgan", "Sam Curran", "Chris Woakes", "Jofra Archer", "Adil Rashid", "Mark Wood", "Moeen Ali"],
+    'Australia': ["David Warner", "Aaron Finch", "Steve Smith", "Glenn Maxwell", "Marcus Stoinis", "Matthew Wade", "Pat Cummins", "Mitchell Starc", "Josh Hazlewood", "Adam Zampa", "Alex Carey"],
+    'South Africa': ["Quinton de Kock", "Aiden Markram", "Rassie van der Dussen", "David Miller", "Temba Bavuma", "Kagiso Rabada", "Anrich Nortje", "Keshav Maharaj", "Tabraiz Shamsi", "Lungi Ngidi", "Dwaine Pretorius"],
+    'Pakistan': ["Babar Azam", "Mohammad Rizwan", "Fakhar Zaman", "Imam-ul-Haq", "Asif Ali", "Shadab Khan", "Shaheen Afridi", "Haris Rauf", "Hasan Ali", "Mohammad Hasnain", "Imad Wasim"],
+    'New Zealand': ["Kane Williamson", "Martin Guptill", "Devon Conway", "Ross Taylor", "Tom Latham", "Trent Boult", "Tim Southee", "Ish Sodhi", "Mitchell Santner", "Lockie Ferguson", "James Neesham"]
+};
+
+const outcomes = ["dot ball", "1 run", "2 runs", "3 runs", "4 runs", "6 runs", "Wicket!", "wide ball", "no ball"];
+
+let currentTeam1, currentTeam2, team1Score, team2Score;
+let team1Batting = true;
+let strikerIndex = 0, nonStrikerIndex = 1;
+let matchCompleted = false;
+let ballCount = 0; 
+let overCount = 0; 
+
+function getRandomOutcome() {
+    return outcomes[Math.floor(Math.random() * outcomes.length)];
+}
+
+function initializeTeamScore(players) {
+    return {
+        players: players.map(name => ({ name, runs: 0, balls: 0 })),
+        totalRuns: 0,
+        wickets: 0,
+        overs: 0,
+        ballsInOver: 0
+    };
+}
+
+function getBallNumber() {
+    let ballInOver = (ballCount % 6) + 1; 
+    let overNumber = Math.floor(ballCount / 6); 
+    return `${overNumber}.${ballInOver}`; 
+}
+
+function updateScore(score, outcome) {
+    let striker = score.players[strikerIndex];
+    if (outcome === "Wicket!") {
+        score.wickets++;
+        striker.balls++;
+        if (score.wickets < score.players.length - 1) {
+            strikerIndex = score.wickets + 1;
+        }
+    } else if (outcome.includes("run")) {
+        let runs = parseInt(outcome[0], 10);
+        striker.runs += runs;
+        score.totalRuns += runs;
+        striker.balls++;
+        if (runs % 2 !== 0) {
+            [strikerIndex, nonStrikerIndex] = [nonStrikerIndex, strikerIndex];
+        }
+    } else if (outcome === "wide ball" || outcome === "no ball") {
+        score.totalRuns += 1;
+    }
+    score.ballsInOver++;
+    ballCount++; 
+
+    if (score.ballsInOver === 6) {
+        score.overs++;
+        score.ballsInOver = 0;
+        [strikerIndex, nonStrikerIndex] = [nonStrikerIndex, strikerIndex];
+    }
+}
+
+function updateScoreboard(team, teamId) {
+    const scorecardBody = document.getElementById(`${teamId}-scorecard-body`);
+    scorecardBody.innerHTML = '';
+    team.players.forEach(player => {
+        scorecardBody.innerHTML += `<tr><td>${player.name}</td><td>${player.runs}</td><td>${player.balls}</td></tr>`;
+    });
+    document.getElementById(`${teamId}-total-score`).textContent = `Total Score: ${team.totalRuns}/${team.wickets} (${team.overs}.${team.ballsInOver} overs)`;
+    updateStrikeBatsmen(team);
+}
+
+function updateStrikeBatsmen(score) {
+    const striker = score.players[strikerIndex];
+    const nonStriker = score.players[nonStrikerIndex];
+    document.getElementById("striker-name").textContent = striker.name;
+    document.getElementById("striker-runs").textContent = striker.runs;
+    document.getElementById("striker-balls").textContent = striker.balls;
+    document.getElementById("non-striker-name").textContent = nonStriker.name;
+    document.getElementById("non-striker-runs").textContent = nonStriker.runs;
+    document.getElementById("non-striker-balls").textContent = nonStriker.balls;
+}
+
+function updateCommentary(outcome) {
+    const commentaryBox = document.getElementById("commentary-box");
+    const ballNumber = getBallNumber(); 
+    commentaryBox.innerHTML = `<p>${ballNumber}: ${outcome}</p>` + commentaryBox.innerHTML;
+}
+
+function startMatch(team1, team2) {
+    currentTeam1 = team1;
+    currentTeam2 = team2;
+    team1Score = initializeTeamScore(teams[team1]);
+    team2Score = initializeTeamScore(teams[team2]);
+
+    document.querySelector(".match-info h2").textContent = `Live Cricket Match: ${team1} vs ${team2}`;
+    document.querySelector(".match-info p strong").textContent = `Teams: ${team1} vs ${team2}`;
+    document.getElementById("team1-name").textContent = `${team1} Batting Scorecard`;
+    document.getElementById("team2-name").textContent = `${team2} Batting Scorecard`;
+
+    resetMatch();
+    resetInnings(); 
+    playBall();
+
+    document.getElementById("teams-info").textContent = `${team1} vs ${team2}`;
+}
+
+function resetMatch() {
+    team1Batting = true;
+    strikerIndex = 0;
+    nonStrikerIndex = 1;
+    matchCompleted = false;
+    updateScoreboard(team1Score, 'team1');
+    updateScoreboard(team2Score, 'team2');
+    document.getElementById("match-result").textContent = "";
+}
+
+function resetInnings() {
+    ballCount = 0; 
+    overCount = 0; 
+}
+
+function playBall() {
+    if (matchCompleted) return;
+    const outcome = getRandomOutcome();
+    updateCommentary(outcome);
+
+    if (team1Batting) {
+        updateScore(team1Score, outcome);
+        updateScoreboard(team1Score, 'team1');
+        if (team1Score.overs >= 20 || team1Score.wickets >= 10) {
+            team1Batting = false;
+            strikerIndex = 0;
+            nonStrikerIndex = 1;
+            document.getElementById("innings-info").textContent = `${currentTeam2} Batting`;
+            resetInnings(); 
+        }
+    } else {
+        updateScore(team2Score, outcome);
+        updateScoreboard(team2Score, 'team2');
+        if (team2Score.overs >= 20 || team2Score.wickets >= 10 || team2Score.totalRuns > team1Score.totalRuns) {
+            matchCompleted = true;
+            checkMatchResult();
+        }
+    }
+    setTimeout(playBall, 1000);
+}
+
+function checkMatchResult() {
+    const resultElement = document.getElementById("match-result");
+    if (team1Score.totalRuns > team2Score.totalRuns) {
+        resultElement.textContent = `${currentTeam1} Wins!`;
+    } else if (team1Score.totalRuns < team2Score.totalRuns) {
+        resultElement.textContent = `${currentTeam2} Wins!`;
+    } else {
+        resultElement.textContent = "It's a Tie!";
+    }
+}
+
+document.getElementById("match-selector").addEventListener("change", function(event) {
+    const selectedMatch = event.target.value;
+    if (selectedMatch !== "") {
+        const [team1, team2] = selectedMatch.split(" vs ");
+        startMatch(team1, team2);
+    } else {
+        document.getElementById("select-match").style.display = 'block'; 
+    }
+});
+</script>
+</body>
+</html>
